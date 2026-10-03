@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyBusiness - Bike Record Book</title>
+<style>
+:root{
+  --primary:#123b6d;
+  --primary-light:#087cf0;
+  --primary-dark:#0a2546;
+  --bg:#f4f7fb;
+  --surface:#ffffff;
+  --border:#cbd7e6;
+  --border-light:#e2e8f0;
+  --text:#17345c;
+  --text-muted:#61738d;
+  --green:#159447;
+  --green-bg:#effbf4;
+  --red:#e33b3b;
+  --red-bg:#fdf2f2;
+  --purple:#7048d9;
+  --purple-bg:#f5f0ff;
+  --blue:#087cf0;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.4;
+}
+
+header{
+  height:68px;
+  background:linear-gradient(135deg, #102e52 0%, #123b6d 100%);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 22px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.15);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.brand{font-size:21px;font-weight:700;display:flex;align-items:center;gap:10px}
+.brand span{font-size:12px;font-weight:400;display:block;opacity:.85;margin-top:2px}
+.top-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.top-controls label{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+select,input,button{font:inherit}
+select,input{border:1px solid var(--border);border-radius:7px;padding:7px 10px;background:#fff;color:var(--text)}
+select:focus,input:focus{outline:2px solid var(--primary-light);border-color:transparent}
+
+button{
+  border:0;
+  border-radius:7px;
+  padding:8px 14px;
+  background:var(--primary-light);
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  transition:all 0.15s ease;
+}
+button:hover{opacity:.92;transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+.secondary{background:#64748b}
+.danger{background:var(--red)}
+.danger-btn{background:#fff;color:var(--red);border:1px solid #fed7d7;padding:5px 8px;font-size:12px}
+.danger-btn:hover{background:var(--red);color:#fff}
+.success{background:var(--green)}
+.btn-logout{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:6px 12px;font-size:13px}
+.btn-logout:hover{background:rgba(255,255,255,0.25)}
+
+.green{color:var(--green)}
+.purple{color:var(--purple)}
+.red{color:var(--red)}
+.blue{color:var(--blue)}
+
+.layout{display:flex;min-height:calc(100vh - 68px)}
+aside{
+  width:210px;
+  background:#102e52;
+  color:#fff;
+  padding:20px 10px;
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+aside button{
+  width:100%;
+  text-align:left;
+  background:transparent;
+  border-radius:8px;
+  padding:11px 14px;
+  font-size:14px;
+  color:#d0e0f5;
+}
+aside button.active,aside button:hover{background:var(--primary-light);color:#fff;font-weight:700}
+aside .aside-footer{margin-top:auto;padding:12px;font-size:11px;opacity:.6;text-align:center;border-top:1px solid rgba(255,255,255,0.1)}
+
+main{flex:1;padding:22px;overflow:auto}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+  gap:14px;
+  margin-bottom:20px;
+}
+.card{
+  background:#fff;
+  border:1px solid #dbe4ef;
+  border-radius:10px;
+  box-shadow:0 2px 7px rgba(220,229,239,0.7);
+  padding:15px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.card small{color:var(--text-muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.card .value{font-size:22px;font-weight:800;margin-top:8px}
+.card .subvalue{font-size:12px;color:var(--text-muted);margin-top:4px}
+
+.panel{
+  background:#fff;
+  border:1px solid #dbe4ef;
+  border-radius:10px;
+  box-shadow:0 2px 7px rgba(220,229,239,0.7);
+  padding:18px;
+  margin-bottom:22px;
+}
+.panel-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.panel-title h2{margin:0;font-size:19px;color:var(--primary);display:flex;align-items:center;gap:8px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.filter-pills{display:flex;gap:4px;background:#eef4fb;padding:3px;border-radius:8px}
+.filter-btn{background:transparent;color:var(--text);padding:5px 12px;font-size:12px;border-radius:6px}
+.filter-btn.active{background:var(--primary);color:#fff}
+
+.table-wrap{
+  overflow-x:auto;
+  border:1px solid var(--border-light);
+  border-radius:8px;
+  background:#fff;
+  max-height:650px;
+}
+table{border-collapse:collapse;width:100%;min-width:1150px}
+th,td{border-bottom:1px solid var(--border-light);padding:8px 10px;text-align:left;white-space:nowrap;font-size:13px}
+th{
+  background:#edf5ff;
+  color:#19406e;
+  font-weight:700;
+  position:sticky;
+  top:0;
+  z-index:5;
+  box-shadow:0 1px 0 #cbd7e6;
+}
+tfoot td{font-weight:800;background:#f8fafc;border-top:2px solid var(--border);position:sticky;bottom:0;z-index:4}
+td input,td select{
+  width:100%;
+  min-width:85px;
+  padding:5px 7px;
+  font-size:13px;
+  border-radius:5px;
+}
+td input:read-only{background:#f8fafc;border-color:transparent;font-weight:700}
+td.num, td.mnum{font-weight:700;color:var(--text-muted);text-align:center;width:40px}
+td.profit-col{font-weight:700}
+
+.badge{
+  display:inline-block;
+  padding:3px 8px;
+  border-radius:12px;
+  font-size:11px;
+  font-weight:700;
+  text-align:center;
+}
+.badge-yes{background:#dcfce7;color:#15803d}
+.badge-no{background:#fee2e2;color:#b91c1c}
+
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.summary-box{background:#fcfdfe;border:1px solid #e2e8f0;border-radius:8px;padding:12px}
+.summary-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:9px 12px;
+  border-bottom:1px solid #edf2f7;
+  font-size:14px;
+}
+.summary-row:last-child{border-bottom:0}
+.summary-row.highlight{font-weight:800;background:var(--green-bg);border-radius:6px}
+.summary-row.highlight-blue{font-weight:800;background:#eef7ff;border-radius:6px}
+
+.hint{
+  padding:12px 14px;
+  background:#eef7ff;
+  border-left:4px solid var(--blue);
+  border-radius:6px;
+  margin-top:14px;
+  font-size:13px;
+  color:#1e4b85;
+  line-height:1.5;
+}
+.search{min-width:240px}
+.count{font-size:13px;color:var(--text-muted);margin-bottom:10px;font-weight:600}
+
+/* Login screen */
+#loginScreen{
+  position:fixed; inset:0; z-index:99999;
+  display:flex; align-items:center; justify-content:center;
+  background:
+    linear-gradient(rgba(5,18,35,.75),rgba(5,18,35,.85)),
+    url("https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=2000&q=85")
+    center/cover no-repeat;
+}
+.login-box{
+  width:min(400px,92vw); padding:36px 32px; border-radius:18px;
+  background:rgba(255,255,255,.98); box-shadow:0 20px 60px rgba(0,0,0,.5);
+  text-align:center; color:#17345c;
+}
+.login-bike{font-size:52px; margin-bottom:8px}
+.login-box h1{margin:0 0 6px;font-size:26px;color:var(--primary)}
+.login-box p{margin:0 0 22px;color:var(--text-muted);font-size:14px}
+.login-box input{
+  display:block;width:100%;margin:10px 0;padding:12px 14px;
+  border:1px solid #cbd7e6;border-radius:8px;font-size:15px;
+}
+.login-box button{
+  width:100%;padding:13px;margin-top:10px;font-size:16px;justify-content:center;
+}
+.login-hint{font-size:12px;color:var(--text-muted);margin-top:14px}
+.login-error{min-height:22px;color:var(--red);font-size:14px;margin-top:10px;font-weight:600}
+body.locked > header, body.locked > .layout{display:none}
+
+@media(max-width:1024px){
+  aside{display:none}
+  .summary-grid{grid-template-columns:1fr}
+}
+
+@media print{
+  header, aside, .toolbar, .filter-pills, .hint, button, #loginScreen{display:none !important}
+  body{background:#fff;color:#000}
+  .panel{box-shadow:none;border:none;padding:0;margin-bottom:30px}
+  .table-wrap{overflow:visible;max-height:none;border:1px solid #000}
+  table{min-width:100%}
+  th{background:#f0f0f0 !important;color:#000}
+  td input, td select{border:none !important;background:transparent !important;padding:2px !important}
+}
+</style>
+</head>
+<body class="locked">
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-bike">🏍️</div>
+    <h1>MyBusiness</h1>
+    <p>Bike Record Book • Management System</p>
+    <input id="loginUsername" type="text" placeholder="Username (Default: 9898)" autocomplete="username">
+    <input id="loginPassword" type="password" placeholder="Password (Default: 4304)" autocomplete="current-password">
+    <button onclick="login()">🔐 Secure Login</button>
+    <div id="loginError" class="login-error"></div>
+    <div class="login-hint">Protected Dealer Ledger System</div>
+  </div>
+</div>
+
+<header>
+  <div class="brand">
+    <span>🏍️</span>
+    <div>
+      MyBusiness
+      <span>Bike Record Book • Inventory • Sales • Expenses • Profit</span>
+    </div>
+  </div>
+  <div class="top-controls">
+    <label>Month: <select id="monthSelect"></select></label>
+    <label>Year: <select id="yearSelect"></select></label>
+    <button class="secondary" onclick="window.print()" title="Print current record book">🖨️ Print</button>
+    <button class="btn-logout" onclick="logout()" title="Lock application">🔒 Logout</button>
+  </div>
+</header>
+
+<div class="layout">
+<aside>
+  <button class="active" onclick="showPanel('dataPanel')">📋 Bike Records</button>
+  <button onclick="showPanel('paymentPanel')">💳 Payment Ledger</button>
+  <button onclick="showPanel('profitPanel')">📈 Profit & Loss</button>
+  <button onclick="showPanel('maintenancePanel')">🔧 Maintenance / Exp</button>
+  <button onclick="showPanel('finalPanel')">🧮 Cash Settlement</button>
+  <button onclick="showPanel('monthlyPanel')">📊 Annual Reports</button>
+  <div class="aside-footer">
+    MyBusiness Bike System<br>v2.5 • Auto-Saving
+  </div>
+</aside>
+
+<main>
+<div class="cards">
+  <div class="card">
+    <small>Total Cost (Purchases)</small>
+    <div id="sellCard" class="value blue">₹0</div>
+    <div id="totalBikesCard" class="subvalue">0 Total Bikes</div>
+  </div>
+  <div class="card">
+    <small>Total Sales Revenue</small>
+    <div id="soldCard" class="value green">₹0</div>
+    <div id="soldCountCard" class="subvalue">0 Bikes Sold</div>
+  </div>
+  <div class="card">
+    <small>Gross Margin (Sales)</small>
+    <div id="grossMarginCard" class="value purple">₹0</div>
+    <div id="grossMarginSub" class="subvalue">Margin on sold bikes</div>
+  </div>
+  <div class="card">
+    <small>Net Profit</small>
+    <div id="profitCard" class="value green">₹0</div>
+    <div id="profitSub" class="subvalue">After expenses & loss</div>
+  </div>
+  <div class="card">
+    <small>Stock Inventory Value</small>
+    <div id="stockValueCard" class="value blue">₹0</div>
+    <div id="stockCountCard" class="subvalue">0 Bikes in Stock</div>
+  </div>
+</div>
+
+<section id="dataPanel" class="panel">
+  <div class="panel-title">
+    <h2>📋 Bike Records — <span id="headingMonth"></span></h2>
+    <div class="toolbar">
+      <div class="filter-pills">
+        <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+        <button class="filter-btn" onclick="setFilter('stock', this)">In Stock</button>
+        <button class="filter-btn" onclick="setFilter('sold', this)">Sold</button>
+      </div>
+      <input id="search" class="search" placeholder="🔍 Search bike name, model, number..." oninput="render()">
+      <button onclick="addRow()">＋ Add Bike</button>
+      <button class="secondary" onclick="saveData(true)">💾 Save</button>
+      <button class="secondary" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="secondary" onclick="document.getElementById('importFile').click()">⬆ Import CSV</button>
+      <button class="secondary" onclick="exportFullBackup()">📦 Backup All</button>
+      <button class="secondary" onclick="document.getElementById('backupFile').click()">📂 Restore</button>
+      <input id="importFile" type="file" accept=".csv,.xls,.txt" style="display:none" onchange="importCSV(event)">
+      <input id="backupFile" type="file" accept=".json" style="display:none" onchange="importFullBackup(event)">
+    </div>
+  </div>
+  
+  <div class="count" id="recordCount">Loading records...</div>
+  
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th style="width:40px">#</th>
+        <th>Bike Name</th>
+        <th style="width:110px">Model / Year</th>
+        <th style="width:130px">Reg. Number</th>
+        <th style="width:110px">Cost / Buy (₹)</th>
+        <th style="width:110px">Sold Price (₹)</th>
+        <th style="width:110px">Cash Received (₹)</th>
+        <th style="width:120px">PhonePe/UPI (₹)</th>
+        <th style="width:100px">Profit / Loss (₹)</th>
+        <th style="width:95px">Status</th>
+        <th style="width:75px">Action</th>
+      </tr></thead>
+      <tbody id="dataBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" style="text-align:right">Monthly Totals:</td>
+          <td id="footCost">₹0</td>
+          <td id="footSold">₹0</td>
+          <td id="footCash">₹0</td>
+          <td id="footUpi">₹0</td>
+          <td id="footProfit">₹0</td>
+          <td id="footStatus">0 Sold</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <div class="hint">
+    💡 <b>Accounting Rule:</b> Cost / Buy is your investment price. When a bike is marked <b>Yes (Sold)</b>, Profit is calculated as <code>Sold Price − Cost</code>. If <b>No (In Stock)</b>, the bike's cost is tracked as showroom inventory assets (not a business loss). Cash + UPI tracks payments received.
+  </div>
+</section>
+
+<section id="paymentPanel" class="panel">
+  <div class="panel-title">
+    <h2>💳 Payment Reconciliation</h2>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-box">
+      <div class="summary-row"><span>Cash Received</span><b id="cashReceived">₹0</b></div>
+      <div class="summary-row"><span>PhonePe / UPI Received</span><b id="upiReceived">₹0</b></div>
+      <div class="summary-row highlight-blue"><span>Total Payments Received (Cash + UPI)</span><b id="cashUpiTotal" class="blue">₹0</b></div>
+      <div class="summary-row"><span>Other Payments / Advances</span><b id="otherReceived">₹0</b></div>
+    </div>
+    <div class="summary-box">
+      <div class="summary-row"><span>Total Sold Value (Invoiced)</span><b id="paymentTotal">₹0</b></div>
+      <div class="summary-row"><span>Difference (Received vs Sold)</span><b id="paymentDifference">₹0</b></div>
+      <div class="summary-row highlight"><span>Reconciliation Status</span><b id="paymentStatus">Checking...</b></div>
+      <div class="summary-row"><span>Total Bikes Sold This Month</span><b id="paymentSoldCount">0</b></div>
+    </div>
+  </div>
+  <div class="hint">
+    Reconciliation ensures all sales proceeds are accounted for. If Received &lt; Sold, there is pending recovery ("Short"). If Received &gt; Sold, excess or advances are recorded.
+  </div>
+</section>
+
+<section id="profitPanel" class="panel">
+  <div class="panel-title">
+    <h2>📈 Profit & Loss Statement</h2>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-box">
+      <div class="summary-row"><span>Total Inventory Cost (All Bikes)</span><b id="lpSell">₹0</b></div>
+      <div class="summary-row"><span>Cost of Sold Bikes (COGS)</span><b id="lpCostOfSold">₹0</b></div>
+      <div class="summary-row"><span>Total Sales Revenue</span><b id="lpSold">₹0</b></div>
+      <div class="summary-row highlight-blue"><span>Gross Sales Margin</span><b id="lpGrossProfit" class="purple">₹0</b></div>
+    </div>
+    <div class="summary-box">
+      <div class="summary-row"><span>Loss on Bikes Sold Below Cost</span><b id="lpLoss" class="red">₹0</b></div>
+      <div class="summary-row"><span>Maintenance & Operating Expenses</span><b id="lpMaintenance" class="red">₹0</b></div>
+      <div class="summary-row"><span>Current Stock Inventory Asset Value</span><b id="lpStockAsset" class="blue">₹0</b></div>
+      <div class="summary-row highlight"><span>Net Business Profit</span><b id="lpNetProfit" class="green">₹0</b></div>
+    </div>
+  </div>
+  <div class="hint">
+    <b>Net Profit Formula:</b> <code>Gross Sales Margin − Sales Losses − Maintenance/Expenses</code>.<br>
+    Unsold bikes remain in showroom stock as assets and are not deducted from your profit.
+  </div>
+</section>
+
+<section id="maintenancePanel" class="panel">
+  <div class="panel-title">
+    <h2>🔧 Maintenance & Business Expenses — <span id="maintHeadingMonth"></span></h2>
+    <button onclick="addMaintenance()">＋ Add Expense</button>
+  </div>
+  <div class="table-wrap">
+    <table style="min-width:680px">
+      <thead><tr>
+        <th style="width:40px">#</th>
+        <th style="width:140px">Date</th>
+        <th>Expense / Maintenance Description</th>
+        <th style="width:140px">Amount (₹)</th>
+        <th style="width:80px">Action</th>
+      </tr></thead>
+      <tbody id="maintenanceBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="text-align:right">Total Expenses for Month:</td>
+          <td id="maintenanceTotal" class="red" style="font-weight:800">₹0</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <div class="hint">
+    Record all bike repair expenses, service, oil changes, spare parts, transit, and shop maintenance. These are automatically factored into your net profit.
+  </div>
+</section>
+
+<section id="finalPanel" class="panel">
+  <div class="panel-title">
+    <h2>🧮 Cash Settlement & Capital Position</h2>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-box">
+      <div class="summary-row"><span>Net Business Profit</span><b id="finalProfit" class="green">₹0</b></div>
+      <div class="summary-row"><span>Owner Drawings / Withdrawal</span><span><input id="withdrawal" type="number" min="0" value="0" style="width:130px;font-weight:700;text-align:right" oninput="saveWithdrawal()"></span></div>
+      <div class="summary-row highlight-blue"><span>Retained Business Earnings</span><b id="finalRemaining" class="blue">₹0</b></div>
+    </div>
+    <div class="summary-box">
+      <div class="summary-row"><span>Cash & UPI Collected</span><b id="finalCollected">₹0</b></div>
+      <div class="summary-row"><span>Less Expenses Paid</span><b id="finalExpenses" class="red">₹0</b></div>
+      <div class="summary-row"><span>Less Drawings Taken</span><b id="finalDrawings" class="red">₹0</b></div>
+      <div class="summary-row highlight"><span>Net Available Cash Balance</span><b id="finalCashBalance" class="green">₹0</b></div>
+    </div>
+  </div>
+  <div class="hint">
+    Retained Business Earnings = <code>Net Profit − Withdrawal</code>. Net Available Cash Balance = <code>Collected Receipts − Expenses − Owner Drawings</code>.
+  </div>
+</section>
+
+<section id="monthlyPanel" class="panel">
+  <div class="panel-title">
+    <h2>📊 Annual Report — <span id="reportYear">2024</span> Month-by-Month</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Month</th>
+        <th>Total Bikes</th>
+        <th>Total Cost (₹)</th>
+        <th>Total Sold (₹)</th>
+        <th>Gross Profit (₹)</th>
+        <th>Cash (₹)</th>
+        <th>PhonePe/UPI (₹)</th>
+        <th>Collected (₹)</th>
+        <th>Expenses (₹)</th>
+        <th>Net Profit (₹)</th>
+        <th>Bikes Sold</th>
+        <th>In Stock</th>
+      </tr></thead>
+      <tbody id="monthBody"></tbody>
+      <tfoot id="monthFoot"></tfoot>
+    </table>
+  </div>
+</section>
+</main></div>
+
+<script>
+const LOGIN_USERNAME = "9898";
+const LOGIN_PASSWORD = "4304";
+
+function login(){
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const error = document.getElementById("loginError");
+
+  if(username === LOGIN_USERNAME && password === LOGIN_PASSWORD){
+    sessionStorage.setItem("mybusinessLoggedIn","1");
+    document.body.classList.remove("locked");
+    document.getElementById("loginScreen").style.display = "none";
+    error.textContent = "";
+  }else{
+    error.textContent = "Incorrect username or password.";
+    document.getElementById("loginPassword").select();
+  }
+}
+
+function logout(){
+  sessionStorage.removeItem("mybusinessLoggedIn");
+  document.body.classList.add("locked");
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("loginPassword").value = "";
+}
+
+function checkLogin(){
+  if(sessionStorage.getItem("mybusinessLoggedIn") === "1"){
+    document.body.classList.remove("locked");
+    document.getElementById("loginScreen").style.display = "none";
+  }
+}
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "Enter" && document.getElementById("loginScreen").style.display !== "none"){
+    login();
+  }
+});
+
+const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const initialRecords=[
+  {"name": "f/z", "model": "2018", "number": "ap27by2707", "sell": "48500", "sold": "54800", "cash": "54800", "upi": "0", "profit": "6300", "bike": "Yes"},
+  {"name": "unicorn", "model": "2021", "number": "ap39hs6199", "sell": "84000", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "pulsar 150", "model": "2015", "number": "ap37cm0957", "sell": "16000", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "jupiter", "model": "2015", "number": "ap37cm7108", "sell": "19200", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "bullet classic 350", "model": "2021", "number": "ap39kf8289", "sell": "173000", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "activa6g", "model": "2023", "number": "ap40 fr", "sell": "80000", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "activa5g", "model": "2019", "number": "ap39db7091", "sell": "46100", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "jupiter", "model": "2018", "number": "ap37dl8043", "sell": "24100", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "honda dio", "model": "2018", "number": "ap37dn6191", "sell": "35500", "sold": "42500", "cash": "42500", "upi": "0", "profit": "7000", "bike": "Yes"},
+  {"name": "activa 3g", "model": "2016", "number": "ap37ck8603", "sell": "33500", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "activa-6g", "model": "2020", "number": "ap39hb9831", "sell": "49600", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "passion pro", "model": "2010", "number": "ap05bs5072", "sell": "18000", "sold": "23000", "cash": "23000", "upi": "0", "profit": "5000", "bike": "Yes"},
+  {"name": "hf deluxe", "model": "2021", "number": "ap39lm8074", "sell": "40200", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "pulsar 150", "model": "2021", "number": "ap39ja2632", "sell": "69000", "sold": "77500", "cash": "50000", "upi": "27500", "profit": "8500", "bike": "Yes"},
+  {"name": "activa5g", "model": "2019", "number": "ap39cw5342", "sell": "44500", "sold": "48500", "cash": "48500", "upi": "0", "profit": "4000", "bike": "Yes"},
+  {"name": "activa5g", "model": "2019", "number": "ap39cz1720", "sell": "43500", "sold": "50500", "cash": "50500", "upi": "0", "profit": "7000", "bike": "Yes"},
+  {"name": "fascion", "model": "2021", "number": "ap39ld8754", "sell": "39500", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "pleasure", "model": "2017", "number": "ap37dg5761", "sell": "27000", "sold": "33200", "cash": "33200", "upi": "0", "profit": "6200", "bike": "Yes"},
+  {"name": "passion pro", "model": "2020", "number": "ap39jv5136", "sell": "22000", "sold": "27500", "cash": "27500", "upi": "0", "profit": "5500", "bike": "Yes"},
+  {"name": "pulsar 150", "model": "2021", "number": "ap39ke1823", "sell": "55000", "sold": "61000", "cash": "61000", "upi": "0", "profit": "5000", "bike": "Yes"},
+  {"name": "activa 4g", "model": "2017", "number": "ap37ek0810", "sell": "37000", "sold": "42000", "cash": "42000", "upi": "0", "profit": "5000", "bike": "Yes"},
+  {"name": "passion pro", "model": "2017", "number": "ap37dc9467", "sell": "38500", "sold": "44500", "cash": "44500", "upi": "0", "profit": "6000", "bike": "Yes"},
+  {"name": "pleasure", "model": "2011", "number": "ap37bh7135", "sell": "12600", "sold": "16000", "cash": "16000", "upi": "0", "profit": "3400", "bike": "Yes"},
+  {"name": "pulsar 150", "model": "2019", "number": "ap39", "sell": "50000", "sold": "51000", "cash": "51000", "upi": "0", "profit": "1000", "bike": "Yes"},
+  {"name": "unicorn", "model": "2017", "number": "ap39", "sell": "45000", "sold": "48000", "cash": "48000", "upi": "0", "profit": "3000", "bike": "Yes"},
+  {"name": "activa 6g", "model": "2021", "number": "ap39", "sell": "51300", "sold": "57000", "cash": "57000", "upi": "0", "profit": "5700", "bike": "Yes"},
+  {"name": "pulsar 150", "model": "2021", "number": "ap39kl8154", "sell": "58600", "sold": "72000", "cash": "72000", "upi": "0", "profit": "13400", "bike": "Yes"},
+  {"name": "activa 6g", "model": "2020", "number": "ap39ht9013", "sell": "45500", "sold": "51000", "cash": "51000", "upi": "0", "profit": "5500", "bike": "Yes"},
+  {"name": "ktm duke 125", "model": "2019", "number": "ap39", "sell": "72000", "sold": "80000", "cash": "80000", "upi": "0", "profit": "8000", "bike": "Yes"},
+  {"name": "access 125", "model": "2020", "number": "ap39 9898", "sell": "61000", "sold": "", "cash": "", "upi": "", "profit": "", "bike": "No"},
+  {"name": "glamour", "model": "2013", "number": "ap37cf0628", "sell": "24300", "sold": "28000", "cash": "28000", "upi": "0", "profit": "2700", "bike": "Yes"}
+];
+
+let data = JSON.parse(localStorage.getItem("mybusinessBikeData")||"null") || {"2024-June":initialRecords};
+let maintenanceData = JSON.parse(localStorage.getItem("mybusinessMaintenanceData")||"null") || {};
+let withdrawalsData = JSON.parse(localStorage.getItem("mybusinessWithdrawals")||"null") || {};
+
+let currentKey = "2024-June";
+let currentFilter = "all";
+
+const yearSelect = document.getElementById("yearSelect");
+const monthSelect = document.getElementById("monthSelect");
+const dataBody = document.getElementById("dataBody");
+const search = document.getElementById("search");
+const recordCount = document.getElementById("recordCount");
+
+for(let y=2020; y<=2035; y++){
+  yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+}
+months.forEach(m => monthSelect.innerHTML += `<option value="${m}">${m}</option>`);
+
+yearSelect.value = "2024";
+monthSelect.value = "June";
+
+function money(n){
+  const val = Number(n||0);
+  const formatted = Math.abs(val).toLocaleString("en-IN", {maximumFractionDigits:2});
+  return (val < 0 ? "-₹" : "₹") + formatted;
+}
+function num(v){
+  return Number(String(v||"").replace(/[₹,\s]/g,"")) || 0;
+}
+function key(){
+  return yearSelect.value + "-" + monthSelect.value;
+}
+function showPanel(id){
+  const el = document.getElementById(id);
+  if(el){
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+    document.querySelectorAll("aside button").forEach(b => b.classList.remove("active"));
+    const match = Array.from(document.querySelectorAll("aside button")).find(b => b.getAttribute("onclick") && b.getAttribute("onclick").includes(id));
+    if(match) match.classList.add("active");
+  }
+}
+function esc(v){
+  return String(v??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  render();
+}
+
+function makeRow(r={}, index=0){
+  const tr = document.createElement("tr");
+  const isSold = (r.bike === "Yes");
+  const sellVal = num(r.sell);
+  const soldVal = num(r.sold);
+  let p = 0;
+  if(isSold && soldVal > 0){
+    p = soldVal - sellVal;
+  }
+  
+  tr.innerHTML = `
+    <td class="num">${index+1}</td>
+    <td><input class="r-name" value="${esc(r.name)}" placeholder="e.g. Pulsar 150"></td>
+    <td><input class="r-model" value="${esc(r.model)}" placeholder="e.g. 2021"></td>
+    <td><input class="r-number" value="${esc(r.number)}" placeholder="e.g. AP39HS6199"></td>
+    <td><input class="r-sell" type="number" min="0" value="${r.sell||""}" placeholder="0"></td>
+    <td><input class="r-sold" type="number" min="0" value="${r.sold||""}" placeholder="0"></td>
+    <td><input class="r-cash" type="number" min="0" value="${r.cash||""}" placeholder="0"></td>
+    <td><input class="r-upi" type="number" min="0" value="${r.upi||""}" placeholder="0"></td>
+    <td class="profit-col ${p > 0 ? 'green' : p < 0 ? 'red' : ''}">${isSold ? money(p) : '-'}</td>
+    <td>
+      <select class="r-bike" onchange="onStatusChange(this)">
+        <option value="No" ${!isSold?"selected":""}>No (Stock)</option>
+        <option value="Yes" ${isSold?"selected":""}>Yes (Sold)</option>
+      </select>
+    </td>
+    <td><button class="danger-btn" onclick="deleteRow(this)">Delete</button></td>
+  `;
+
+  tr.querySelectorAll("input, select").forEach(x => {
+    x.addEventListener("input", () => calculate(false));
+  });
+
+  return tr;
+}
+
+function onStatusChange(selectEl){
+  const tr = selectEl.closest("tr");
+  const soldInput = tr.querySelector(".r-sold");
+  const cashInput = tr.querySelector(".r-cash");
+  const upiInput = tr.querySelector(".r-upi");
+  
+  if(selectEl.value === "Yes"){
+    // If marked sold and sold price entered but cash/upi empty, default cash to sold price
+    if(num(soldInput.value) > 0 && num(cashInput.value) === 0 && num(upiInput.value) === 0){
+      cashInput.value = soldInput.value;
+    }
+  }
+  calculate(false);
+}
+
+function readRows(){
+  const rows = [];
+  document.querySelectorAll("#dataBody tr").forEach(tr => {
+    const name = tr.querySelector(".r-name")?.value || "";
+    const model = tr.querySelector(".r-model")?.value || "";
+    const number = tr.querySelector(".r-number")?.value || "";
+    const sell = tr.querySelector(".r-sell")?.value || "";
+    const sold = tr.querySelector(".r-sold")?.value || "";
+    const cash = tr.querySelector(".r-cash")?.value || "";
+    const upi = tr.querySelector(".r-upi")?.value || "";
+    const bike = tr.querySelector(".r-bike")?.value || "No";
+    
+    let p = 0;
+    if(bike === "Yes" && num(sold) > 0){
+      p = num(sold) - num(sell);
+    }
+    
+    rows.push({
+      name, model, number, sell, sold, cash, upi,
+      profit: p,
+      bike: bike
+    });
+  });
+  return rows;
+}
+
+function saveData(notify=false){
+  data[currentKey] = readRows();
+  localStorage.setItem("mybusinessBikeData", JSON.stringify(data));
+  saveMaintenance();
+  saveWithdrawal();
+  if(notify){
+    alert("✓ All records for " + monthSelect.value + " " + yearSelect.value + " have been saved successfully!");
+  }
+}
+
+function loadMonth(){
+  saveData(false);
+  currentKey = key();
+  data[currentKey] = data[currentKey] || [];
+  
+  document.getElementById("headingMonth").textContent = monthSelect.value + " " + yearSelect.value;
+  document.getElementById("maintHeadingMonth").textContent = monthSelect.value + " " + yearSelect.value;
+  document.getElementById("reportYear").textContent = yearSelect.value;
+  
+  // Load withdrawal for current month
+  document.getElementById("withdrawal").value = withdrawalsData[currentKey] || 0;
+
+  loadMaintenance();
+  render();
+}
+
+function render(){
+  const q = (search.value || "").toLowerCase().trim();
+  dataBody.innerHTML = "";
+  
+  const allRows = data[currentKey] || [];
+  let displayedIndex = 0;
+
+  allRows.forEach((r, originalIdx) => {
+    const isSold = (r.bike === "Yes");
+    if(currentFilter === "stock" && isSold) return;
+    if(currentFilter === "sold" && !isSold) return;
+    
+    const text = (r.name + " " + r.number + " " + r.model).toLowerCase();
+    if(q && !text.includes(q)) return;
+    
+    const tr = makeRow(r, displayedIndex);
+    tr.dataset.idx = originalIdx;
+    dataBody.appendChild(tr);
+    displayedIndex++;
+  });
+
+  if(displayedIndex === 0 && !q && currentFilter === "all"){
+    addRow(false);
+  }
+
+  recordCount.textContent = `Showing ${displayedIndex} of ${allRows.length} bike records • ${monthSelect.value} ${yearSelect.value}`;
+  calculate(false);
+}
+
+function addRow(triggerCalc=true){
+  const tr = makeRow({}, dataBody.children.length);
+  dataBody.appendChild(tr);
+  if(triggerCalc) calculate(false);
+}
+
+function deleteRow(btn){
+  if(confirm("Are you sure you want to delete this bike record?")){
+    btn.closest("tr").remove();
+    // Re-index displayed rows
+    document.querySelectorAll("#dataBody tr").forEach((tr, i) => {
+      const numCell = tr.querySelector(".num");
+      if(numCell) numCell.textContent = i + 1;
+    });
+    calculate(true);
+  }
+}
+
+/* ================== Maintenance Logic ================== */
+
+function saveMaintenance(){
+  maintenanceData[currentKey] = [];
+  document.querySelectorAll("#maintenanceBody tr").forEach(tr => {
+    const inputs = tr.querySelectorAll("input");
+    if(inputs.length >= 3){
+      maintenanceData[currentKey].push({
+        date: inputs[0].value,
+        description: inputs[1].value,
+        amount: inputs[2].value
+      });
+    }
+  });
+  localStorage.setItem("mybusinessMaintenanceData", JSON.stringify(maintenanceData));
+}
+
+function loadMaintenance(){
+  const body = document.getElementById("maintenanceBody");
+  body.innerHTML = "";
+  const rows = maintenanceData[currentKey] || [];
+  rows.forEach(r => addMaintenanceRow(r));
+  calculateMaintenanceTotal();
+}
+
+function addMaintenanceRow(r={}){
+  const tr = document.createElement("tr");
+  const today = new Date().toISOString().slice(0,10);
+  tr.innerHTML = `
+    <td class="mnum"></td>
+    <td><input type="date" value="${esc(r.date || today)}"></td>
+    <td><input value="${esc(r.description || "")}" placeholder="e.g. Engine oil, chain lube, battery, RTO charges"></td>
+    <td><input type="number" min="0" value="${r.amount || ""}" placeholder="0" class="m-amt"></td>
+    <td><button class="danger-btn" onclick="deleteMaintenance(this)">Delete</button></td>
+  `;
+  tr.querySelectorAll("input").forEach(x => {
+    x.addEventListener("input", () => {
+      calculateMaintenanceTotal();
+      calculate(false);
+    });
+  });
+  document.getElementById("maintenanceBody").appendChild(tr);
+  calculateMaintenanceTotal();
+}
+
+function addMaintenance(){
+  addMaintenanceRow();
+  saveMaintenance();
+  calculate(false);
+}
+
+function deleteMaintenance(btn){
+  btn.closest("tr").remove();
+  calculateMaintenanceTotal();
+  saveMaintenance();
+  calculate(false);
+}
+
+function getMaintenanceTotal(){
+  let sum = 0;
+  document.querySelectorAll("#maintenanceBody .m-amt").forEach(inp => {
+    sum += num(inp.value);
+  });
+  return sum;
+}
+
+function calculateMaintenanceTotal(){
+  const rows = document.querySelectorAll("#maintenanceBody tr");
+  rows.forEach((tr, i) => {
+    const numEl = tr.querySelector(".mnum");
+    if(numEl) numEl.textContent = i + 1;
+  });
+  const total = getMaintenanceTotal();
+  document.getElementById("maintenanceTotal").textContent = money(total);
+  document.getElementById("lpMaintenance").textContent = money(total);
+}
+
+function saveWithdrawal(){
+  const val = num(document.getElementById("withdrawal").value);
+  withdrawalsData[currentKey] = val;
+  localStorage.setItem("mybusinessWithdrawals", JSON.stringify(withdrawalsData));
+  calculate(false);
+}
+
+/* ================== Core Calculation ================== */
+
+function calculate(shouldPersist=true){
+  // Read current rows in DOM
+  const rows = readRows();
+  data[currentKey] = rows;
+  if(shouldPersist){
+    localStorage.setItem("mybusinessBikeData", JSON.stringify(data));
+  }
+
+  let totalCost = 0;
+  let totalSoldRevenue = 0;
+  let totalCostOfSold = 0;
+  let grossMargin = 0;
+  let bikeLosses = 0;
+  let soldCount = 0;
+  let stockCount = 0;
+  let stockAssetValue = 0;
+  let totalCash = 0;
+  let totalUpi = 0;
+
+  // Process rows
+  document.querySelectorAll("#dataBody tr").forEach(tr => {
+    const sellVal = num(tr.querySelector(".r-sell")?.value);
+    const soldVal = num(tr.querySelector(".r-sold")?.value);
+    const cashVal = num(tr.querySelector(".r-cash")?.value);
+    const upiVal = num(tr.querySelector(".r-upi")?.value);
+    const isSold = (tr.querySelector(".r-bike")?.value === "Yes");
+
+    totalCost += sellVal;
+    totalCash += cashVal;
+    totalUpi += upiVal;
+
+    let p = 0;
+    if(isSold){
+      soldCount++;
+      totalSoldRevenue += soldVal;
+      totalCostOfSold += sellVal;
+      p = soldVal - sellVal;
+      if(p >= 0){
+        grossMargin += p;
+      }else{
+        bikeLosses += Math.abs(p);
+      }
+    }else{
+      stockCount++;
+      stockAssetValue += sellVal;
+    }
+
+    const profitCell = tr.querySelector(".profit-col");
+    if(profitCell){
+      profitCell.textContent = isSold ? money(p) : "-";
+      profitCell.className = "profit-col " + (isSold ? (p > 0 ? "green" : p < 0 ? "red" : "") : "");
+    }
+  });
+
+  const totalCollected = totalCash + totalUpi;
+  const maintenance = getMaintenanceTotal();
+  const withdrawal = num(document.getElementById("withdrawal").value);
+
+  // Accounting Logic
+  const netProfit = grossMargin - bikeLosses - maintenance;
+  const remainingProfit = netProfit - withdrawal;
+  const netCashBalance = totalCollected - maintenance - withdrawal;
+  const paymentDifference = totalCollected - totalSoldRevenue;
+
+  // Update Top Metric Cards
+  document.getElementById("sellCard").textContent = money(totalCost);
+  document.getElementById("totalBikesCard").textContent = rows.length + " Total Bikes";
+  
+  document.getElementById("soldCard").textContent = money(totalSoldRevenue);
+  document.getElementById("soldCountCard").textContent = soldCount + " Bikes Sold";
+  
+  document.getElementById("grossMarginCard").textContent = money(grossMargin);
+  document.getElementById("grossMarginSub").textContent = "Margin on sold bikes";
+  
+  const profitCard = document.getElementById("profitCard");
+  profitCard.textContent = money(netProfit);
+  profitCard.className = "value " + (netProfit >= 0 ? "green" : "red");
+  document.getElementById("profitSub").textContent = netProfit >= 0 ? "Net Profit" : "Net Business Loss";
+
+  document.getElementById("stockValueCard").textContent = money(stockAssetValue);
+  document.getElementById("stockCountCard").textContent = stockCount + " Bikes in Stock";
+
+  // Table Footers
+  document.getElementById("footCost").textContent = money(totalCost);
+  document.getElementById("footSold").textContent = money(totalSoldRevenue);
+  document.getElementById("footCash").textContent = money(totalCash);
+  document.getElementById("footUpi").textContent = money(totalUpi);
+  document.getElementById("footProfit").textContent = money(grossMargin - bikeLosses);
+  document.getElementById("footStatus").textContent = `${soldCount} Sold / ${stockCount} Stock`;
+
+  // Payment Reconciliation Panel
+  document.getElementById("cashReceived").textContent = money(totalCash);
+  document.getElementById("upiReceived").textContent = money(totalUpi);
+  document.getElementById("cashUpiTotal").textContent = money(totalCollected);
+  document.getElementById("otherReceived").textContent = money(0);
+  document.getElementById("paymentTotal").textContent = money(totalSoldRevenue);
+  
+  const diffEl = document.getElementById("paymentDifference");
+  diffEl.textContent = money(paymentDifference);
+  diffEl.className = paymentDifference >= 0 ? "green" : "red";
+
+  const statusEl = document.getElementById("paymentStatus");
+  if(Math.abs(paymentDifference) < 0.01){
+    statusEl.textContent = "✓ Fully Reconciled";
+    statusEl.className = "green";
+  }else if(paymentDifference > 0){
+    statusEl.textContent = `+ Extra Collected: ${money(paymentDifference)}`;
+    statusEl.className = "blue";
+  }else{
+    statusEl.textContent = `⚠ Pending / Short: ${money(Math.abs(paymentDifference))}`;
+    statusEl.className = "red";
+  }
+  document.getElementById("paymentSoldCount").textContent = soldCount;
+
+  // Profit & Loss Panel
+  document.getElementById("lpSell").textContent = money(totalCost);
+  document.getElementById("lpCostOfSold").textContent = money(totalCostOfSold);
+  document.getElementById("lpSold").textContent = money(totalSoldRevenue);
+  document.getElementById("lpGrossProfit").textContent = money(grossMargin);
+  document.getElementById("lpLoss").textContent = money(bikeLosses);
+  document.getElementById("lpMaintenance").textContent = money(maintenance);
+  document.getElementById("lpStockAsset").textContent = money(stockAssetValue);
+  
+  const lpNetProfitEl = document.getElementById("lpNetProfit");
+  lpNetProfitEl.textContent = money(netProfit);
+  lpNetProfitEl.className = netProfit >= 0 ? "green" : "red";
+
+  // Final Settlement Panel
+  document.getElementById("finalProfit").textContent = money(netProfit);
+  document.getElementById("finalRemaining").textContent = money(remainingProfit);
+  document.getElementById("finalCollected").textContent = money(totalCollected);
+  document.getElementById("finalExpenses").textContent = money(maintenance);
+  document.getElementById("finalDrawings").textContent = money(withdrawal);
+  
+  const finalBalEl = document.getElementById("finalCashBalance");
+  finalBalEl.textContent = money(netCashBalance);
+  finalBalEl.className = netCashBalance >= 0 ? "green" : "red";
+
+  renderMonths();
+}
+
+/* ================== Monthly Reports ================== */
+
+function renderMonths(){
+  const monthBody = document.getElementById("monthBody");
+  const monthFoot = document.getElementById("monthFoot");
+  monthBody.innerHTML = "";
+
+  const curYear = yearSelect.value;
+  let yearTotalBikes = 0;
+  let yearCost = 0;
+  let yearSold = 0;
+  let yearGrossProfit = 0;
+  let yearCash = 0;
+  let yearUpi = 0;
+  let yearMaintenance = 0;
+  let yearNetProfit = 0;
+  let yearSoldCount = 0;
+  let yearStockCount = 0;
+
+  months.forEach(m => {
+    const monthKey = curYear + "-" + m;
+    const rows = data[monthKey] || [];
+    
+    let sell = 0, sold = 0, grossMargin = 0, bikeLosses = 0;
+    let soldCount = 0, stockCount = 0, cash = 0, upi = 0;
+
+    rows.forEach(r => {
+      const sellVal = num(r.sell);
+      const soldVal = num(r.sold);
+      sell += sellVal;
+      cash += num(r.cash);
+      upi += num(r.upi);
+
+      if(r.bike === "Yes"){
+        soldCount++;
+        sold += soldVal;
+        const p = soldVal - sellVal;
+        if(p >= 0) grossMargin += p;
+        else bikeLosses += Math.abs(p);
+      }else{
+        stockCount++;
+      }
+    });
+
+    const maintRows = maintenanceData[monthKey] || [];
+    const maintenance = maintRows.reduce((sum, r) => sum + num(r.amount), 0);
+    const netProfit = grossMargin - bikeLosses - maintenance;
+
+    yearTotalBikes += rows.length;
+    yearCost += sell;
+    yearSold += sold;
+    yearGrossProfit += (grossMargin - bikeLosses);
+    yearCash += cash;
+    yearUpi += upi;
+    yearMaintenance += maintenance;
+    yearNetProfit += netProfit;
+    yearSoldCount += soldCount;
+    yearStockCount += stockCount;
+
+    const isCurrent = (m === monthSelect.value);
+
+    monthBody.innerHTML += `
+      <tr style="${isCurrent ? 'background:#eef7ff;font-weight:600' : ''}">
+        <td><b>${m}</b> ${isCurrent ? '📍' : ''}</td>
+        <td>${rows.length}</td>
+        <td>${money(sell)}</td>
+        <td>${money(sold)}</td>
+        <td class="${(grossMargin - bikeLosses) >= 0 ? 'green' : 'red'}">${money(grossMargin - bikeLosses)}</td>
+        <td>${money(cash)}</td>
+        <td>${money(upi)}</td>
+        <td>${money(cash + upi)}</td>
+        <td class="red">${money(maintenance)}</td>
+        <td class="${netProfit >= 0 ? 'green' : 'red'}" style="font-weight:700">${money(netProfit)}</td>
+        <td><span class="badge badge-yes">${soldCount}</span></td>
+        <td><span class="badge badge-no">${stockCount}</span></td>
+      </tr>
+    `;
+  });
+
+  monthFoot.innerHTML = `
+    <tr style="background:#edf5ff;font-weight:800;border-top:2px solid var(--border)">
+      <td>${curYear} Full Year:</td>
+      <td>${yearTotalBikes}</td>
+      <td>${money(yearCost)}</td>
+      <td>${money(yearSold)}</td>
+      <td class="purple">${money(yearGrossProfit)}</td>
+      <td>${money(yearCash)}</td>
+      <td>${money(yearUpi)}</td>
+      <td>${money(yearCash + yearUpi)}</td>
+      <td class="red">${money(yearMaintenance)}</td>
+      <td class="${yearNetProfit >= 0 ? 'green' : 'red'}">${money(yearNetProfit)}</td>
+      <td>${yearSoldCount}</td>
+      <td>${yearStockCount}</td>
+    </tr>
+  `;
+}
+
+/* ================== Import / Export ================== */
+
+function exportCSV(){
+  saveData(false);
+  const rows = data[currentKey] || [];
+  const head = ["Bike Name", "Bike Model / Year", "Bike Number", "Cost / Buy", "Sold Price", "Cash", "PhonePe / UPI", "Profit", "Sold Status"];
+  const lines = [
+    head,
+    ...rows.map(r => [
+      r.name,
+      r.model,
+      r.number,
+      r.sell || 0,
+      r.sold || 0,
+      r.cash || 0,
+      r.upi || 0,
+      (r.bike === "Yes" ? (num(r.sold) - num(r.sell)) : 0),
+      r.bike || "No"
+    ])
+  ].map(row => row.map(v => `"${String(v??"").replace(/"/g, '""')}"`).join(",")).join("\n");
+
+  const blob = new Blob(["\ufeff" + lines], {type: "text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `BikeRecordBook_${currentKey}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importCSV(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const text = ev.target.result.replace(/^\ufeff/, "").trim();
+    const lines = text.split(/\r?\n/);
+    if(lines.length < 2){
+      alert("Invalid or empty CSV file.");
+      return;
+    }
+    const parsed = lines.slice(1).map(line => {
+      const vals = [];
+      let cur = "", inQuotes = false;
+      for(let c of line){
+        if(c === '"') inQuotes = !inQuotes;
+        else if(c === ',' && !inQuotes){
+          vals.push(cur.trim());
+          cur = "";
+        }else{
+          cur += c;
+        }
+      }
+      vals.push(cur.trim());
+      
+      const isSold = (vals[8] || "").toLowerCase() === "yes";
+      return {
+        name: vals[0] || "",
+        model: vals[1] || "",
+        number: vals[2] || "",
+        sell: num(vals[3]),
+        sold: num(vals[4]),
+        cash: num(vals[5]),
+        upi: num(vals[6]),
+        profit: isSold ? (num(vals[4]) - num(vals[3])) : 0,
+        bike: isSold ? "Yes" : "No"
+      };
+    }).filter(r => r.name || r.number || r.model);
+
+    if(confirm(`Import ${parsed.length} bike records into ${monthSelect.value} ${yearSelect.value}?`)){
+      data[currentKey] = parsed;
+      localStorage.setItem("mybusinessBikeData", JSON.stringify(data));
+      render();
+      alert(`✓ Successfully imported ${parsed.length} records.`);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function exportFullBackup(){
+  saveData(false);
+  const backup = {
+    version: "2.5",
+    exportedAt: new Date().toISOString(),
+    bikeData: data,
+    maintenanceData: maintenanceData,
+    withdrawalsData: withdrawalsData
+  };
+  const jsonStr = JSON.stringify(backup, null, 2);
+  const blob = new Blob([jsonStr], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `MyBusiness_Backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importFullBackup(e){
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const parsed = JSON.parse(ev.target.result);
+      if(parsed && parsed.bikeData){
+        if(confirm("Restore database from backup? This will update your bike records, expenses, and drawings.")){
+          data = parsed.bikeData || {};
+          maintenanceData = parsed.maintenanceData || {};
+          withdrawalsData = parsed.withdrawalsData || {};
+          
+          localStorage.setItem("mybusinessBikeData", JSON.stringify(data));
+          localStorage.setItem("mybusinessMaintenanceData", JSON.stringify(maintenanceData));
+          localStorage.setItem("mybusinessWithdrawals", JSON.stringify(withdrawalsData));
+          
+          loadMonth();
+          alert("✓ Full database restored successfully!");
+        }
+      }else{
+        alert("Invalid backup file format.");
+      }
+    }catch(err){
+      alert("Error parsing backup file: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ================== Event Listeners & Init ================== */
+
+yearSelect.addEventListener("change", loadMonth);
+monthSelect.addEventListener("change", loadMonth);
+search.addEventListener("input", render);
+
+checkLogin();
+loadMonth();
+</script>
+</body>
+</html>
